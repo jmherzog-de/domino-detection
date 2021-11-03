@@ -96,12 +96,13 @@ class ImageMode(object):
 
 if __name__ == '__main__':
 
-    #application_mode    = int(sys.argv[1])
-    #image_path          = str(sys.argv[2])
-    application_mode = 0
+    application_mode    = int(sys.argv[1])
+    image_path          = str(sys.argv[2])
+    
+    #application_mode = 0
     
     if application_mode == 0:
-        ImageMode(file_path="images/1.jpeg").Run()
+        ImageMode(file_path=image_path).Run()
     elif application_mode == 1:
         print("Video mode not implemented.")
     else:
