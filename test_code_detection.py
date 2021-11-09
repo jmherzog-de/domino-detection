@@ -14,16 +14,42 @@ def emptyCallback(arg):
     pass
 
 
+def boundingBoxStone(x, y, w, h):
+    # find orientation of stone
+    # w > h equals upright
+    if w > h:
+        # for h the percentage of the stone = 4,8
+        # for w the percentage of the stone = 72,5
+        h_new = (h/7) * 100
+        w_new = (w/75) * 100
+        y_new = y - ((h_new-h)/2)
+        x_new = x - ((w_new-w)/2)
+
+        cv2.rectangle(imgContour, (int(x_new),int(y_new)), (int(x_new+w_new),int(y_new+h_new)), (0,255,0), 2)
+    # h > w equals sideways
+    else:
+        h_new = (h/75) * 100
+        w_new = (w/7) * 100
+        y_new = y - ((h_new-h)/2)
+        x_new = x - ((w_new-w)/2)
+
+        cv2.rectangle(imgContour, (int(x_new),int(y_new)), (int(x_new+w_new),int(y_new+h_new)), (0,0,255), 2)
+    
+    return int(x_new), int(y_new), int(w_new), int(h_new)
+
+
 def getContours(in_img, out_img):
 ##    circle_vals = []
 ##    circle_coords = []
 ##    circle_corners = []
+    circle_centers = []
+    stone_boxes = []
 
     _, contours, hierarchy = cv2.findContours(in_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
 
     for cnt in contours:
         area = cv2.contourArea(cnt)
-        if area > 100:                                              # get rid of small errors --> could get rid of points if too small
+        if area > 700:                                              # get rid of small errors --> could get rid of points if too small
             cv2.drawContours(out_img, cnt, -1, (255,0,255), 3)
             peri = cv2.arcLength(cnt, True)
             approx = cv2.approxPolyDP(cnt, 0.02*peri, True)         # number of conerpoints
@@ -31,9 +57,15 @@ def getContours(in_img, out_img):
             objCorner = len(approx)
             x, y, w, h = cv2.boundingRect(approx)
 
-            if objCorner == 4:  objectType = 'Rect'
-            elif objCorner >4 :
+            if objCorner == 4 or objCorner == 5:                                      # usually 4, here 5 for small errors
+                objectType = 'Rect'
+                stone_boxes.append(boundingBoxStone(x, y, w, h))
+            elif objCorner > 5:
                 objectType = 'Circle'
+                # find center of circle
+                new_center = [int(x+(w/2)), int(y+(h/2))]
+                circle_centers.append(new_center)
+                cv2.putText(imgContour, "x", (new_center[0],new_center[1]), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0,0,255))
 
 ##                # ---- for future versions -----------
 ##                # build mean of all circles
@@ -46,6 +78,18 @@ def getContours(in_img, out_img):
 
             cv2.rectangle(imgContour, (x,y), (x+w,y+h), (255,0,0), 2)
             cv2.putText(imgContour, objectType, (x,y-10), cv2.FONT_HERSHEY_COMPLEX, 0.5, (255,0,0))
+
+    # ********** check if circle in box ***************************
+    circle_count = 0
+    for i in range(len(stone_boxes)):
+        for j in range(len(circle_centers)):
+            if (circle_centers[j][0] > stone_boxes[i][0] and circle_centers[j][1] > stone_boxes[i][1]) and (circle_centers[j][0] < stone_boxes[i][0]+stone_boxes[i][2] and circle_centers[j][1] < stone_boxes[i][1]+stone_boxes[i][3]):
+                circle_count += 1
+        cv2.putText(imgContour, str(circle_count), (stone_boxes[i][0], stone_boxes[i][1]-10), cv2.FONT_HERSHEY_COMPLEX, 1, (255,0,255))
+        circle_count = 0    
+
+    stone_boxes.clear()
+    circle_centers.clear()
 
 
 
@@ -122,7 +166,8 @@ cv2.createTrackbar("Thresh_2", "LeWindow", 120, 255, emptyCallback)
 
 #img = cv2.imread('images/shapes.png')     # 30 and 30
 #img = cv2.imread('images/6.jpeg')       # 90 and 160            90 and 120 for small errors
-img = cv2.imread('images/3.jpeg')
+img = cv2.imread('images/2.jpeg')
+#img = cv2.imread('images/3.jpeg')
 #img = cv2.imread('images/1.jpeg')
 #img = cv2.imread('images/1_1.jpeg')     # use 160 and 255 in canny
 
