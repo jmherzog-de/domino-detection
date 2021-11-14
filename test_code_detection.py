@@ -17,7 +17,16 @@ def emptyCallback(arg):
 def boundingBoxStone(x, y, w, h):
     # find orientation of stone
     # w > h equals upright
+    x_new = 0
+    y_new = 0
+    h_new = 0
+    w_new = 0
+    x_2 = 0             # predefined to catch errors
+    y_2 = 0
+    h_half = 0
+    w_half = 0
     if w > h:
+        id = 1
         # for h the percentage of the stone = 4,8
         # for w the percentage of the stone = 72,5
         h_new = (h/7) * 100
@@ -25,17 +34,89 @@ def boundingBoxStone(x, y, w, h):
         y_new = y - ((h_new-h)/2)
         x_new = x - ((w_new-w)/2)
 
-        cv2.rectangle(imgContour, (int(x_new),int(y_new)), (int(x_new+w_new),int(y_new+h_new)), (0,255,0), 2)
+        cv2.rectangle(imgContour, (int(x_new),int(y_new)), (int(x_new+w_new),int(y_new+h_new)), (0,255,0), 3)
+
+        # now 2 seperate boxes for the seperate sides:
+        # x_new still correct, y now has to be split for 2 boxes
+        # y1 stays y_new and y2 has to be recalculated
+        y_2 = y + (h/2)
+        h_half = h_new/2
+
+        cv2.rectangle(imgContour, (int(x_new),int(y_new)), (int(x_new+w_new),int(y_new+h_half)), (0,0,255), 2)
+        cv2.rectangle(imgContour, (int(x_new),int(y_2)), (int(x_new+w_new),int(y_2+h_half)), (0,0,255), 2)
+
     # h > w equals sideways
     else:
+        id = 2
         h_new = (h/75) * 100
         w_new = (w/7) * 100
         y_new = y - ((h_new-h)/2)
         x_new = x - ((w_new-w)/2)
 
-        cv2.rectangle(imgContour, (int(x_new),int(y_new)), (int(x_new+w_new),int(y_new+h_new)), (0,0,255), 2)
+        cv2.rectangle(imgContour, (int(x_new),int(y_new)), (int(x_new+w_new),int(y_new+h_new)), (0,255,0), 3)
+
+        # seperate boxes
+        x_2 = x + (w/2)
+        w_half = w_new/2
+
+        cv2.rectangle(imgContour, (int(x_new),int(y_new)), (int(x_new+w_half),int(y_new+h_new)), (0,0,255), 2)
+        cv2.rectangle(imgContour, (int(x_2),int(y_new)), (int(x_2+w_half),int(y_new+h_new)), (0,0,255), 2)
     
-    return int(x_new), int(y_new), int(w_new), int(h_new)
+    return int(x_new), int(y_new), int(w_new), int(h_new), int(y_2), int(x_2), int(h_half), int(w_half), id
+
+
+def insideRect(point, box):
+    # return True if given point is inside given rect
+    # point has to be (x,y)
+    # box has to be (x,y,w,h)
+    if (point[0] > box[0] and point[1] > box[1]) and (point[0] < box[0]+box[2] and point[1] < box[1]+box[3]):
+        return True
+    else:
+        return False
+
+
+################--------------------- NEXT UP FOR DEVELOPMENT ------------------############################
+
+def findAppending(stones):
+    for i in range(len(stones)):
+        # show which stone is which
+        cv2.putText(imgContour, str(i), (stones[i][0]-10, stones[i][1]-10), cv2.FONT_HERSHEY_COMPLEX, 2, (0,0,255))
+
+        # define possible positions
+        possPos = []
+        if stones[i][8] == 1:                       # w > h
+            # append (x,y) for boxes of the size w,h = 20,20
+            # new with 30,30 is euqally as bad, so now 40,40
+            possPos.append((int(stones[i][0]-20), int(stones[i][1]-stones[i][3]-40)))                    # these tolerances may be adjusted according to failure
+            possPos.append((int(stones[i][0]+stones[i][2]-10), int(stones[i][1]-20)))
+            possPos.append((int(stones[i][0]+stones[i][2]-10), int(stones[i][1]+(stones[i][3]/2)-(stones[i][2]/2)-20)))
+            possPos.append((int(stones[i][0]+stones[i][2]-10), int(stones[i][1]+(stones[i][3]/2)-20)))
+            possPos.append((int(stones[i][0]-20), int(stones[i][1]+stones[i][3]-10)))
+            possPos.append((int(stones[i][0]-stones[i][3]-40), int(stones[i][1]-20)))
+            possPos.append((int(stones[i][0]-stones[i][3]-40), int(stones[i][1]+(stones[i][3]/2)-(stones[i][2]/2)-20)))
+            possPos.append((int(stones[i][0]-stones[i][3]-40), int(stones[i][1]+(stones[i][3]/2)-20)))
+        elif stones[i][8] == 2:                     # h > w
+            possPos.append((int(stones[i][0]-20), int(stones[i][1]-stones[i][2]-40)))
+            possPos.append((int(stones[i][0]+(stones[i][2]/2)-(stones[i][3]/2)-20), int(stones[i][1]-stones[i][2]-40)))
+            possPos.append((int(stones[i][0]+(stones[i][2]/2)-20), int(stones[i][1]-stones[i][2]-40)))
+            possPos.append((int(stones[i][0]+stones[i][2]-10), int(stones[i][1]-20)))
+            possPos.append((int(stones[i][0]+(stones[i][2]/2)-20), int(stones[i][1]+stones[i][3]-10)))
+            possPos.append((int(stones[i][0]+(stones[i][2]/2)-(stones[i][3]/2)-20), int(stones[i][1]+stones[i][3]-10)))
+            possPos.append((int(stones[i][0]-20), int(stones[i][1]+stones[i][3]-10)))
+            possPos.append((int(stones[i][0]-stones[i][2]-40), int(stones[i][1]-20)))
+
+        for l in range(len(possPos)):
+            cv2.rectangle(imgContour, (possPos[l][0],possPos[l][1]), (possPos[l][0]+40,possPos[l][1]+40), (55+(i*50),55+(i*50),0), 2)
+
+
+        # look if stones are appending
+        for j in range(len(stones)):
+            for t in range(len(possPos)):
+                if insideRect((stones[j][0], stones[j][1]), (possPos[t][0], possPos[t][1], 40, 40)):
+                    # for stone i the stone j appends to it in position t
+                    cv2.putText(imgContour, str(j) + " to stone " + str(i) + " on pos " + str(t+1), (possPos[t][0], possPos[t][1]), cv2.FONT_HERSHEY_COMPLEX, 0.5, (0,0,255))
+
+        possPos.clear()
 
 
 def getContours(in_img, out_img):
@@ -83,10 +164,44 @@ def getContours(in_img, out_img):
     circle_count = 0
     for i in range(len(stone_boxes)):
         for j in range(len(circle_centers)):
-            if (circle_centers[j][0] > stone_boxes[i][0] and circle_centers[j][1] > stone_boxes[i][1]) and (circle_centers[j][0] < stone_boxes[i][0]+stone_boxes[i][2] and circle_centers[j][1] < stone_boxes[i][1]+stone_boxes[i][3]):
+            if (insideRect(circle_centers[j], stone_boxes[i])):
                 circle_count += 1
-        cv2.putText(imgContour, str(circle_count), (stone_boxes[i][0], stone_boxes[i][1]-10), cv2.FONT_HERSHEY_COMPLEX, 1, (255,0,255))
+        cv2.putText(imgContour, str(circle_count), (stone_boxes[i][0], stone_boxes[i][1]-35), cv2.FONT_HERSHEY_COMPLEX, 1, (255,0,255))
         circle_count = 0    
+    
+    # ********** check the split boxes ****************************
+    # check id to determine orientation
+    # !!! inefficient since we go over every circle again, potential to speed up the process !!!
+    circle_count_side_1 = 0
+    circle_count_side_2 = 0
+    id_x = 0
+    id_y = 1
+    for i in range(len(stone_boxes)):
+        for j in range(len(circle_centers)):
+            if stone_boxes[i][8] == 1:
+                if (insideRect(circle_centers[j], [stone_boxes[i][0], stone_boxes[i][1], stone_boxes[i][2], stone_boxes[i][6]])):
+                    circle_count_side_1 += 1
+                elif (insideRect(circle_centers[j], [stone_boxes[i][0], stone_boxes[i][4], stone_boxes[i][2], stone_boxes[i][6]])):
+                    circle_count_side_2 += 1
+                id_x = 0
+                id_y = 4
+
+            elif stone_boxes[i][8] == 2:
+                if (insideRect(circle_centers[j], [stone_boxes[i][0], stone_boxes[i][1], stone_boxes[i][7], stone_boxes[i][3]])):
+                    circle_count_side_1 += 1
+                elif (insideRect(circle_centers[j], [stone_boxes[i][5], stone_boxes[i][1], stone_boxes[i][7], stone_boxes[i][3]])):
+                    circle_count_side_2 += 1
+                id_x = 5
+                id_y = 1
+
+        cv2.putText(imgContour, str(circle_count_side_1), (stone_boxes[i][0], stone_boxes[i][1]-10), cv2.FONT_HERSHEY_COMPLEX, 1, (255,0,255))
+        cv2.putText(imgContour, str(circle_count_side_2), (stone_boxes[i][id_x], stone_boxes[i][id_y]-10), cv2.FONT_HERSHEY_COMPLEX, 1, (255,0,255))
+        circle_count_side_1 = 0
+        circle_count_side_2 = 0
+
+    # *********** find appending stones ************
+    findAppending(stone_boxes)
+    
 
     stone_boxes.clear()
     circle_centers.clear()
@@ -190,8 +305,8 @@ while True:
 
 
     cv2.imshow('LeWindow', imgContour)
-    cv2.imshow('Blur', imgBlur)
-    cv2.imshow('Canny', imgCanny)
-    cv2.imshow('Dilation', imgDilation)
+#    cv2.imshow('Blur', imgBlur)
+#    cv2.imshow('Canny', imgCanny)
+#    cv2.imshow('Dilation', imgDilation)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
