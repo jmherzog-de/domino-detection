@@ -79,6 +79,11 @@ class ContourWidget(BaseWidget):
             area = cv2.contourArea(cnt)
             if area >= self.__areaSizeMin:
                 cv2.drawContours(self.OutputImage, cnt, -1, (255, 0, 255), 3)
+                rect = cv2.minAreaRect(cnt)
+                box = cv2.boxPoints(rect)
+                box = np.int0(box)
+                cv2.drawContours(self.OutputImage, [box], 0, (0,0,255), thickness=2)
+
         
         super().Action()
 
