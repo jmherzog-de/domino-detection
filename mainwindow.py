@@ -21,8 +21,8 @@ from PySide6.QtWidgets      import QFileDialog, QGridLayout, QGroupBox, QLabel, 
 import numpy    as np
 import widgets  as UIWidgets
 import cv2
+import time
 
-from widgets import contour_widget
 
 class VideoThread(QThread):
     """
@@ -51,10 +51,12 @@ class VideoThread(QThread):
         """
 
         self.cap = cv2.VideoCapture(0)
+        self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
         while self.status:
             ret, frame = self.cap.read()
             if not ret:
                 continue
+            time.sleep(0.5)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             self.updateFrame.emit(frame)
 
@@ -267,26 +269,41 @@ class MainWindow(QMainWindow):
         grayscale_filter    = UIWidgets.GrayscaleWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="GRAYSCALE FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="Original Image", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(grayscale_filter)
 
+        #autoscale_filter    = UIWidgets.AutoscaleWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="AUTOSCALE", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        #self.__availableFilters.append(autoscale_filter)
+
         blur_filter         = UIWidgets.BlurWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="BLUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(blur_filter)
         
-        gauss_filter        = UIWidgets.GaussianBlurWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="GAUSSIAN BLUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
-        self.__availableFilters.append(gauss_filter)
+        #gauss_filter        = UIWidgets.GaussianBlurWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="GAUSSIAN BLUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        #self.__availableFilters.append(gauss_filter)
 
-        medianblur_filter   = UIWidgets.MedianBlurWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="MEDIAN BLUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
-        self.__availableFilters.append(medianblur_filter)
+        #medianblur_filter   = UIWidgets.MedianBlurWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="MEDIAN BLUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        #self.__availableFilters.append(medianblur_filter)
 
-        canny_filter        = UIWidgets.CannyWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CANNY FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="BLUR FILTER", parameterChangedCallback=self.parameterChangedCallback)
-        self.__availableFilters.append(canny_filter)
+        #canny_filter        = UIWidgets.CannyWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CANNY FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="BLUR FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        #self.__availableFilters.append(canny_filter)
 
-        binarythresh_filter = UIWidgets.BinaryThresholdWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="BINARY THRESHOLD FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="BLUR FILTER", parameterChangedCallback=self.parameterChangedCallback)
-        self.__availableFilters.append(binarythresh_filter)
+        #binarythresh_filter = UIWidgets.BinaryThresholdWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="BINARY THRESHOLD FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="BLUR FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        #self.__availableFilters.append(binarythresh_filter)
 
-        dilation_filter     = UIWidgets.DilationWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="DILATION FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="CANNY FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        #erode_filter        = UIWidgets.ErodeWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="ERODE FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="DILATION FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        #self.__availableFilters.append(erode_filter)
+
+        adaptivethresh_filter = UIWidgets.AdaptiveThresholdWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="ADAPTIVE THRESHOLD", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="BLUR FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        self.__availableFilters.append(adaptivethresh_filter)
+
+        dilation_filter     = UIWidgets.DilationWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="DILATION FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ADAPTIVE THRESHOLD", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(dilation_filter)
 
         contour_filter      = UIWidgets.ContourWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CONTOUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="DILATION FILTER", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(contour_filter)
+        
+        finddivider_filter  = UIWidgets.FindDividerWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="FIND DIVIDER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="DILATION FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        self.__availableFilters.append(finddivider_filter)
+
+        circledetect_filter = UIWidgets.CircleDetectionWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CIRCLE DETECTION", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ADAPTIVE THRESHOLD", parameterChangedCallback=self.parameterChangedCallback)
+        self.__availableFilters.append(circledetect_filter)
 
         for widget in self.__availableFilters:
             self.filterListBox.addItem(widget.WidgetName)

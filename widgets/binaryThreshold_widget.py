@@ -75,6 +75,6 @@ class BinaryThresholdWidget(BaseWidget):
         """
         
         cvInputImage:np.ndarray = self.SelectInputImage()
-        _, self.OutputImage = cv2.threshold(cvInputImage, self.__thresh, self.__thresh_max, cv2.THRESH_BINARY)
+        _, self.OutputImage = cv2.threshold(cvInputImage, self.__thresh, self.__thresh_max, cv2.THRESH_BINARY_INV)
         super().Action()
         return

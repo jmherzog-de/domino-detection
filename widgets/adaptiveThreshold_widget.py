@@ -17,9 +17,11 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .basewidget import BaseWidget, cv2, np
 
-class ContourWidget(BaseWidget):
+
+class AdaptiveThresholdWidget(BaseWidget):
     """
-    Contour findind widget. This widget implement a contour finding algorithm with OpenCV functions.
+    Adaptive Threshold. This widget implement a adaptive threshold filter with OpenCV functions.
+    The user has the ability to change the threshold.
     """
 
     def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", parameterChangedCallback=None) -> None:
@@ -40,18 +42,34 @@ class ContourWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
+        self.__blockSize    = 21
+        self.__blockSizeMax = 500
+        self.__C            = 10
+        self.__CMax         = 100
+        self.AddSliderToGUI(name="Block Size", minVal=1, maxVal=self.__blockSizeMax, defaultVal=self.__blockSize, valueChangedCallback=self.blockSizeValueChanged)
+        self.AddSliderToGUI(name="C", minVal=1, maxVal=self.__CMax, defaultVal=self.__C, valueChangedCallback=self.cValueChanged)
 
-        self.__areaSizeMin = 10
-        self.AddSliderToGUI(name="Area size minimum", minVal=self.__areaSizeMin, maxVal=2000, valueChangedCallback=self.onAreaSizeMinValueChanged)
-    
-    def onAreaSizeMinValueChanged(self, value: int) -> None:
+    def blockSizeValueChanged(self, value: int) -> None:
         """
-        Value changed event, triggered when the value of the slider 'Area size minimum' changed
+        Value changed event, triggered when the value of the slider has changed.
 
         :param value: Current slider value.
         :type value: int
         """
-        self.__areaSizeMin = value
+
+        self.__blockSize = value
+        self.Action()
+        self.ValueChangedCallbackWrapper(value)
+    
+    def cValueChanged(self, value: int) -> None:
+        """
+        Value changed event, triggered when the value of the slider has changed.
+
+        :param value: [description]
+        :type value: int
+        """
+        
+        self.__C = value
         self.Action()
         self.ValueChangedCallbackWrapper(value)
     
@@ -59,40 +77,19 @@ class ContourWidget(BaseWidget):
         """
         Triggered when the selected index changed of the input combobox.
 
-        :param index: [description]
-        :type index: [type]
+        :param index: selected item index
+        :type index: int
         """
         super().ComboBoxInputImageChanged(index)
         self.Action()
         return
     
-    def Action(self) -> None:
+    def Action(self):
         """
-        Apply contour finding algorithm on input image.
+        Apply filter on input image.
         """
-
+        
         cvInputImage:np.ndarray = self.SelectInputImage()
-        
-        contours, _ = cv2.findContours(cvInputImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        self.OutputImage = self.OriginalImage.copy()
-        for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if area >= self.__areaSizeMin:
-
-                eps = 0.05 * cv2.arcLength(cnt, True)
-                approx  = cv2.approxPolyDP(curve=cnt, epsilon=eps, closed=True)
-                #if len(approx) != 4:
-                #    continue
-                
-                cv2.drawContours(self.OutputImage, cnt, -1, (255, 0, 255), 3)
-                rect = cv2.minAreaRect(cnt)
-                box = cv2.boxPoints(rect)
-                box = np.int0(box)
-                cv2.drawContours(self.OutputImage, [box], 0, (0,0,255), thickness=2)
-                
-
-        
+        self.OutputImage = cv2.adaptiveThreshold(cvInputImage, maxValue=255, adaptiveMethod=cv2.ADAPTIVE_THRESH_MEAN_C, thresholdType=cv2.THRESH_BINARY_INV, blockSize=self.__blockSize, C=self.__C)
         super().Action()
-
         return
-    

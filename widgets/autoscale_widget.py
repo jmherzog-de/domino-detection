@@ -15,11 +15,15 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from cv2 import NORMCONV_FILTER, clipLine
 from .basewidget import BaseWidget, cv2, np
+from domino_algorithms.eye_detection    import DominoEyeDetection
 
-class ContourWidget(BaseWidget):
+
+class AutoscaleWidget(BaseWidget):
     """
-    Contour findind widget. This widget implement a contour finding algorithm with OpenCV functions.
+    Autoscaling brightness and contrast Widget. This widget implement a the hough circle detection method from the OpenCV library.
+    The user has the ability to change the radius.
     """
 
     def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", parameterChangedCallback=None) -> None:
@@ -40,59 +44,59 @@ class ContourWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-
-        self.__areaSizeMin = 10
-        self.AddSliderToGUI(name="Area size minimum", minVal=self.__areaSizeMin, maxVal=2000, valueChangedCallback=self.onAreaSizeMinValueChanged)
-    
-    def onAreaSizeMinValueChanged(self, value: int) -> None:
-        """
-        Value changed event, triggered when the value of the slider 'Area size minimum' changed
-
-        :param value: Current slider value.
-        :type value: int
-        """
-        self.__areaSizeMin = value
-        self.Action()
-        self.ValueChangedCallbackWrapper(value)
     
     def ComboBoxInputImageChanged(self, index: int) -> None:
         """
         Triggered when the selected index changed of the input combobox.
 
-        :param index: [description]
-        :type index: [type]
+        :param index: selected item index
+        :type index: int
         """
         super().ComboBoxInputImageChanged(index)
         self.Action()
         return
     
-    def Action(self) -> None:
+    def Action(self):
         """
-        Apply contour finding algorithm on input image.
+        Apply filter on input image.
         """
-
+        
         cvInputImage:np.ndarray = self.SelectInputImage()
-        
-        contours, _ = cv2.findContours(cvInputImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        self.OutputImage = self.OriginalImage.copy()
-        for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if area >= self.__areaSizeMin:
-
-                eps = 0.05 * cv2.arcLength(cnt, True)
-                approx  = cv2.approxPolyDP(curve=cnt, epsilon=eps, closed=True)
-                #if len(approx) != 4:
-                #    continue
-                
-                cv2.drawContours(self.OutputImage, cnt, -1, (255, 0, 255), 3)
-                rect = cv2.minAreaRect(cnt)
-                box = cv2.boxPoints(rect)
-                box = np.int0(box)
-                cv2.drawContours(self.OutputImage, [box], 0, (0,0,255), thickness=2)
-                
-
-        
+        self.OutputImage, alpha, beta = self.automatic_brightness_and_contrast(cvImage=cvInputImage, clip_hist_percent=25.0)
         super().Action()
-
         return
     
+
+    def automatic_brightness_and_contrast(self, cvImage: np.ndarray, clip_hist_percent: float = 25.0):
+
+        # Calculate grayscale histogram
+        hist = cv2.calcHist(images=[cvImage], channels=[0], mask=None, histSize=[256], ranges=[0, 256])
+        hist_size = len(hist)
+
+        # Calculate cummulative distribution from histogram
+        accumulator = []
+        accumulator.append(float(hist[0]))
+        for index in range(1, hist_size):
+            accumulator.append(accumulator[index - 1] + float(hist[index]))
+        
+        # Locate points to clip
+        maximum = accumulator[-1]
+        clip_hist_percent *= maximum / 100.0
+        clip_hist_percent /= 2.0
+
+        # Locate left cut
+        minimum_gray = 0
+        while accumulator[minimum_gray] < clip_hist_percent:
+            minimum_gray += 1
+                
+        # Locate right cut
+        maximum_gray = hist_size - 1
+        while accumulator[maximum_gray] >= (maximum - clip_hist_percent):
+            maximum_gray -= 1
+        
+        # Calculate alpha and beta values
+        alpha = 255 / (maximum_gray - minimum_gray)
+        beta = -minimum_gray * alpha
+
+        auto_result = cv2.convertScaleAbs(cvImage, alpha=alpha, beta=beta)
+        return (auto_result, alpha, beta)

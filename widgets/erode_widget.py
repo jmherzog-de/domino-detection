@@ -17,10 +17,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 from .basewidget import BaseWidget, cv2, np
 
-class ContourWidget(BaseWidget):
-    """
-    Contour findind widget. This widget implement a contour finding algorithm with OpenCV functions.
-    """
+
+class ErodeWidget(BaseWidget):
 
     def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", parameterChangedCallback=None) -> None:
         """
@@ -40,27 +38,40 @@ class ContourWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-
-        self.__areaSizeMin = 10
-        self.AddSliderToGUI(name="Area size minimum", minVal=self.__areaSizeMin, maxVal=2000, valueChangedCallback=self.onAreaSizeMinValueChanged)
+        self.__kernelVal    = 5
+        self.__iterCount    = 1
+        self.AddSliderToGUI(name="kernel [x,y]", defaultVal=self.__kernelVal, minVal=1, maxVal=17, valueChangedCallback=self.kernelSliderValueChanged)
+        self.AddSliderToGUI(name="Iterations", defaultVal=self.__iterCount, minVal=1, maxVal=5, valueChangedCallback=self.iterCountSliderValueChanged)
+        return
     
-    def onAreaSizeMinValueChanged(self, value: int) -> None:
+    def kernelSliderValueChanged(self, value: int) -> None:
         """
-        Value changed event, triggered when the value of the slider 'Area size minimum' changed
+        Value changed event, triggered when the value of the slider kernelVal changed.
 
         :param value: Current slider value.
         :type value: int
         """
-        self.__areaSizeMin = value
+        self.__kernelVal = value
         self.Action()
         self.ValueChangedCallbackWrapper(value)
     
-    def ComboBoxInputImageChanged(self, index: int) -> None:
+    def iterCountSliderValueChanged(self, value: int) -> None:
+        """
+        Value changed event, triggered when the value of the iteration count slider changed.
+
+        :param value: Current slider value.
+        :type value: int
+        """
+        self.__iterCount = value
+        self.Action()
+        self.ValueChangedCallbackWrapper(value)
+    
+    def ComboBoxInputImageChanged(self, index):
         """
         Triggered when the selected index changed of the input combobox.
 
-        :param index: [description]
-        :type index: [type]
+        :param index: Selected item index
+        :type index: int
         """
         super().ComboBoxInputImageChanged(index)
         self.Action()
@@ -68,31 +79,10 @@ class ContourWidget(BaseWidget):
     
     def Action(self) -> None:
         """
-        Apply contour finding algorithm on input image.
+        Apply dilation method on input image.
         """
 
         cvInputImage:np.ndarray = self.SelectInputImage()
-        
-        contours, _ = cv2.findContours(cvInputImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
-        self.OutputImage = self.OriginalImage.copy()
-        for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if area >= self.__areaSizeMin:
-
-                eps = 0.05 * cv2.arcLength(cnt, True)
-                approx  = cv2.approxPolyDP(curve=cnt, epsilon=eps, closed=True)
-                #if len(approx) != 4:
-                #    continue
-                
-                cv2.drawContours(self.OutputImage, cnt, -1, (255, 0, 255), 3)
-                rect = cv2.minAreaRect(cnt)
-                box = cv2.boxPoints(rect)
-                box = np.int0(box)
-                cv2.drawContours(self.OutputImage, [box], 0, (0,0,255), thickness=2)
-                
-
-        
-        super().Action()
-
+        self.OutputImage = cv2.erode(src=cvInputImage, kernel=np.ones((self.__kernelVal, self.__kernelVal), np.uint8), iterations=self.__iterCount)
+        super().Action()        
         return
-    

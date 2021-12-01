@@ -6,3 +6,8 @@ from .canny_widget              import CannyWidget
 from .binaryThreshold_widget    import BinaryThresholdWidget
 from .contour_widget            import ContourWidget
 from .dilation_widget           import DilationWidget
+from .findDivider_widget        import FindDividerWidget
+from .erode_widget              import ErodeWidget
+from .adaptiveThreshold_widget  import AdaptiveThresholdWidget
+from .circleDetection_widget    import CircleDetectionWidget
+from .autoscale_widget          import AutoscaleWidget

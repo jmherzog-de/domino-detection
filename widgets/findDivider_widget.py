@@ -15,11 +15,14 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
+from domino_algorithms.roi_approx import RoiApprox
 from .basewidget import BaseWidget, cv2, np
+from domino_algorithms.divider_extraction import DividerExtraction
 
-class ContourWidget(BaseWidget):
+
+class FindDividerWidget(BaseWidget):
     """
-    Contour findind widget. This widget implement a contour finding algorithm with OpenCV functions.
+    Widget to extract the divider rectangle from the domino stones.
     """
 
     def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", parameterChangedCallback=None) -> None:
@@ -41,8 +44,7 @@ class ContourWidget(BaseWidget):
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
 
-        self.__areaSizeMin = 10
-        self.AddSliderToGUI(name="Area size minimum", minVal=self.__areaSizeMin, maxVal=2000, valueChangedCallback=self.onAreaSizeMinValueChanged)
+        self.__areaSizeMin = 700
     
     def onAreaSizeMinValueChanged(self, value: int) -> None:
         """
@@ -51,7 +53,7 @@ class ContourWidget(BaseWidget):
         :param value: Current slider value.
         :type value: int
         """
-        self.__areaSizeMin = value
+        self.__areaSizeMin = 700
         self.Action()
         self.ValueChangedCallbackWrapper(value)
     
@@ -72,26 +74,12 @@ class ContourWidget(BaseWidget):
         """
 
         cvInputImage:np.ndarray = self.SelectInputImage()
-        
-        contours, _ = cv2.findContours(cvInputImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        #self.OutputImage = np.zeros(self.OriginalImage.shape, dtype='uint8')
         self.OutputImage = self.OriginalImage.copy()
-        for cnt in contours:
-            area = cv2.contourArea(cnt)
-            if area >= self.__areaSizeMin:
-
-                eps = 0.05 * cv2.arcLength(cnt, True)
-                approx  = cv2.approxPolyDP(curve=cnt, epsilon=eps, closed=True)
-                #if len(approx) != 4:
-                #    continue
+        divs = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), cvOutImage=self.OutputImage)
+        RoiApprox.FindROI(divs, cvOutImage=self.OutputImage)
+            
                 
-                cv2.drawContours(self.OutputImage, cnt, -1, (255, 0, 255), 3)
-                rect = cv2.minAreaRect(cnt)
-                box = cv2.boxPoints(rect)
-                box = np.int0(box)
-                cv2.drawContours(self.OutputImage, [box], 0, (0,0,255), thickness=2)
-                
-
-        
         super().Action()
 
         return
