@@ -23,6 +23,8 @@ import widgets  as UIWidgets
 import cv2
 import time
 
+from widgets import result_widget
+
 
 class VideoThread(QThread):
     """
@@ -52,11 +54,14 @@ class VideoThread(QThread):
 
         self.cap = cv2.VideoCapture(0)
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
+        self.cap.set(cv2.CAP_PROP_XI_FRAMERATE, 30)
         while self.status:
             ret, frame = self.cap.read()
             if not ret:
                 continue
-            time.sleep(0.5)
+            #time.sleep(0.5)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             self.updateFrame.emit(frame)
 
@@ -287,8 +292,6 @@ class MainWindow(QMainWindow):
         #binarythresh_filter = UIWidgets.BinaryThresholdWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="BINARY THRESHOLD FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="BLUR FILTER", parameterChangedCallback=self.parameterChangedCallback)
         #self.__availableFilters.append(binarythresh_filter)
 
-        #erode_filter        = UIWidgets.ErodeWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="ERODE FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="DILATION FILTER", parameterChangedCallback=self.parameterChangedCallback)
-        #self.__availableFilters.append(erode_filter)
 
         adaptivethresh_filter = UIWidgets.AdaptiveThresholdWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="ADAPTIVE THRESHOLD", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="BLUR FILTER", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(adaptivethresh_filter)
@@ -296,14 +299,20 @@ class MainWindow(QMainWindow):
         dilation_filter     = UIWidgets.DilationWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="DILATION FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ADAPTIVE THRESHOLD", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(dilation_filter)
 
-        contour_filter      = UIWidgets.ContourWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CONTOUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="DILATION FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        erode_filter        = UIWidgets.ErodeWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="ERODE FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ADAPTIVE THRESHOLD", parameterChangedCallback=self.parameterChangedCallback)
+        self.__availableFilters.append(erode_filter)
+
+        contour_filter      = UIWidgets.ContourWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CONTOUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(contour_filter)
         
-        finddivider_filter  = UIWidgets.FindDividerWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="FIND DIVIDER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="DILATION FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        finddivider_filter  = UIWidgets.FindDividerWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="FIND DIVIDER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(finddivider_filter)
 
-        circledetect_filter = UIWidgets.CircleDetectionWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CIRCLE DETECTION", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ADAPTIVE THRESHOLD", parameterChangedCallback=self.parameterChangedCallback)
+        circledetect_filter = UIWidgets.CircleDetectionWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CIRCLE DETECTION", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(circledetect_filter)
+
+        result_filter       = UIWidgets.ResultWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="RESULT", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        self.__availableFilters.append(result_filter)
 
         for widget in self.__availableFilters:
             self.filterListBox.addItem(widget.WidgetName)

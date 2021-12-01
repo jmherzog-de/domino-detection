@@ -37,3 +37,9 @@ class DominoEyeDetection:
                 cv2.circle(cvOutImage, (center_x,center_y), 1, (0, 0, 255), 3)    # little circle at the found circle center
         
         return circles
+    
+    @staticmethod
+    def EyeCounting(eyes: list, line_start: tuple, line_end: tuple):
+        
+        crossproduct = (eyes[1] - line_start[1]) * (line_end[0] - line_start[0]) - (eyes[0] - line_start[0]) * (line_end[1] - line_start[1])
+        print(crossproduct)

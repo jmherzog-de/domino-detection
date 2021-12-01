@@ -73,7 +73,7 @@ class ContourWidget(BaseWidget):
 
         cvInputImage:np.ndarray = self.SelectInputImage()
         
-        contours, _ = cv2.findContours(cvInputImage, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+        contours, _ = cv2.findContours(cvInputImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
         self.OutputImage = self.OriginalImage.copy()
         for cnt in contours:
             area = cv2.contourArea(cnt)
@@ -81,8 +81,6 @@ class ContourWidget(BaseWidget):
 
                 eps = 0.05 * cv2.arcLength(cnt, True)
                 approx  = cv2.approxPolyDP(curve=cnt, epsilon=eps, closed=True)
-                #if len(approx) != 4:
-                #    continue
                 
                 cv2.drawContours(self.OutputImage, cnt, -1, (255, 0, 255), 3)
                 rect = cv2.minAreaRect(cnt)

@@ -77,7 +77,7 @@ class FindDividerWidget(BaseWidget):
         #self.OutputImage = np.zeros(self.OriginalImage.shape, dtype='uint8')
         self.OutputImage = self.OriginalImage.copy()
         divs = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), cvOutImage=self.OutputImage)
-        RoiApprox.FindROI(divs, cvOutImage=self.OutputImage)
+        #RoiApprox.FindROI(divs, cvOutImage=self.OutputImage)
             
                 
         super().Action()

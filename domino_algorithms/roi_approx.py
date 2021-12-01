@@ -23,7 +23,6 @@ def calculate_points(center_x: int, center_y: int, angle: float, offset: float):
     
     sin     = np.sin(angle * 3.1415 / 180.0)
     cos     = np.cos(angle * 3.1415 / 180.0)
-    tan     = np.tan(angle * 3.1415 / 180.0)
 
     if angle > 5.0:
         ps_y = center_y - offset * sin
@@ -37,7 +36,7 @@ def calculate_points(center_x: int, center_y: int, angle: float, offset: float):
 class RoiApprox:
 
     @staticmethod
-    def FindROI(dividers: list, cvOutImage: np.ndarray, stone_length: int = 250):
+    def FindROI(dividers: list, cvOutImage: np.ndarray, stone_length: int = 150):
         
         for divider in dividers:
             
@@ -52,32 +51,32 @@ class RoiApprox:
             #
             # Calculate right side of the second detection row
             #
-            ps_x, ps_y = calculate_points(p1_x, p1_y, divider['angle'], offset=60.0)
-            p2_x       = np.int32(np.round(ps_x + stone_length * 0.5 * np.cos(divider['angle'] * 3.1415 / 180.0)))
-            p2_y       = np.int32(np.round(ps_y + stone_length * 0.5 * np.sin(divider['angle'] * 3.1415 / 180.0)))
-            cv2.line(cvOutImage, (ps_x, ps_y), (p2_x, p2_y), color=(255,255,0), thickness=2)
+            #ps_x, ps_y = calculate_points(p1_x, p1_y, divider['angle'], offset=25.0)
+            #p2_x       = np.int32(np.round(ps_x + stone_length * 0.5 * np.cos(divider['angle'] * 3.1415 / 180.0)))
+            #p2_y       = np.int32(np.round(ps_y + stone_length * 0.5 * np.sin(divider['angle'] * 3.1415 / 180.0)))
+            #cv2.line(cvOutImage, (ps_x, ps_y), (p2_x, p2_y), color=(255,255,0), thickness=2)
 
             #
             # Calculate left side of the second detection row
             #
-            p2_x       = np.int32(np.round(ps_x - stone_length * 0.5 * np.cos(divider['angle'] * 3.1415 / 180.0)))
-            p2_y       = np.int32(np.round(ps_y - stone_length * 0.5 * np.sin(divider['angle'] * 3.1415 / 180.0)))
-            cv2.line(cvOutImage, (ps_x, ps_y), (p2_x, p2_y), color=(255,255,0), thickness=2)
+            #p2_x       = np.int32(np.round(ps_x - stone_length * 0.5 * np.cos(divider['angle'] * 3.1415 / 180.0)))
+            #p2_y       = np.int32(np.round(ps_y - stone_length * 0.5 * np.sin(divider['angle'] * 3.1415 / 180.0)))
+            #cv2.line(cvOutImage, (ps_x, ps_y), (p2_x, p2_y), color=(255,255,0), thickness=2)
 
             #
             # Calculate right side of the first detection row
             #
-            ps_x, ps_y = calculate_points(p1_x, p1_y, divider['angle'], offset=-60.0)
-            p2_x       = np.int32(np.round(ps_x + stone_length * 0.5 * np.cos(divider['angle'] * 3.1415 / 180.0)))
-            p2_y       = np.int32(np.round(ps_y + stone_length * 0.5 * np.sin(divider['angle'] * 3.1415 / 180.0)))
-            cv2.line(cvOutImage, (ps_x, ps_y), (p2_x, p2_y), color=(255,255,0), thickness=2)
+            #ps_x, ps_y = calculate_points(p1_x, p1_y, divider['angle'], offset=-25.0)
+            #p2_x       = np.int32(np.round(ps_x + stone_length * 0.5 * np.cos(divider['angle'] * 3.1415 / 180.0)))
+            #p2_y       = np.int32(np.round(ps_y + stone_length * 0.5 * np.sin(divider['angle'] * 3.1415 / 180.0)))
+            #cv2.line(cvOutImage, (ps_x, ps_y), (p2_x, p2_y), color=(255,255,0), thickness=2)
 
             #
             # Calculate left side of the first detection row
             #
-            p2_x       = np.int32(np.round(ps_x - stone_length * 0.5 * np.cos(divider['angle'] * 3.1415 / 180.0)))
-            p2_y       = np.int32(np.round(ps_y - stone_length * 0.5 * np.sin(divider['angle'] * 3.1415 / 180.0)))
-            cv2.line(cvOutImage, (ps_x, ps_y), (p2_x, p2_y), color=(255,255,0), thickness=2)
+            #p2_x       = np.int32(np.round(ps_x - stone_length * 0.5 * np.cos(divider['angle'] * 3.1415 / 180.0)))
+            #p2_y       = np.int32(np.round(ps_y - stone_length * 0.5 * np.sin(divider['angle'] * 3.1415 / 180.0)))
+            #cv2.line(cvOutImage, (ps_x, ps_y), (p2_x, p2_y), color=(255,255,0), thickness=2)
 
             #
             # Calculate right side of the center line

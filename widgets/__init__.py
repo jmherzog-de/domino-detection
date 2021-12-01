@@ -11,3 +11,4 @@ from .erode_widget              import ErodeWidget
 from .adaptiveThreshold_widget  import AdaptiveThresholdWidget
 from .circleDetection_widget    import CircleDetectionWidget
 from .autoscale_widget          import AutoscaleWidget
+from .result_widget             import ResultWidget
