@@ -21,10 +21,6 @@ from PySide6.QtWidgets      import QFileDialog, QGridLayout, QGroupBox, QLabel, 
 import numpy    as np
 import widgets  as UIWidgets
 import cv2
-import time
-
-from widgets import result_widget
-
 
 class VideoThread(QThread):
     """
@@ -61,7 +57,6 @@ class VideoThread(QThread):
             ret, frame = self.cap.read()
             if not ret:
                 continue
-            #time.sleep(0.5)
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             self.updateFrame.emit(frame)
 
