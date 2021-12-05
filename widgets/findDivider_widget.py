@@ -44,7 +44,7 @@ class FindDividerWidget(BaseWidget):
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
 
-        self.__areaSizeMin = 700
+        self.__areaSizeMin = 600
     
     def onAreaSizeMinValueChanged(self, value: int) -> None:
         """
@@ -53,7 +53,7 @@ class FindDividerWidget(BaseWidget):
         :param value: Current slider value.
         :type value: int
         """
-        self.__areaSizeMin = 700
+        self.__areaSizeMin = value
         self.Action()
         self.ValueChangedCallbackWrapper(value)
     
@@ -76,8 +76,8 @@ class FindDividerWidget(BaseWidget):
         cvInputImage:np.ndarray = self.SelectInputImage()
         #self.OutputImage = np.zeros(self.OriginalImage.shape, dtype='uint8')
         self.OutputImage = self.OriginalImage.copy()
-        divs = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), cvOutImage=self.OutputImage)
-        #RoiApprox.FindROI(divs, cvOutImage=self.OutputImage)
+        stones = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), cvOutImage=self.OutputImage)
+        RoiApprox.FindROI(stones, cvOutImage=self.OutputImage)
             
                 
         super().Action()

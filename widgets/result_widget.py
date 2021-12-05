@@ -139,9 +139,8 @@ class ResultWidget(BaseWidget):
         
         cvInputImage:np.ndarray = self.SelectInputImage()
         self.OutputImage = self.OriginalImage.copy()
-        dividers = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), cvOutImage=self.OutputImage)
-        print(dividers)
-        RoiApprox.FindROI(dividers, cvOutImage=self.OutputImage)
+        stones = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), cvOutImage=self.OutputImage)
+        RoiApprox.FindROI(stones, cvOutImage=self.OutputImage)
         domino_eyes = DominoEyeDetection.ExtractEyes(cvImage=cvInputImage, cvOutImage=self.OutputImage, min_dist=self.__minDist, param_1=self.__param1, param_2=self.__param2, min_radius=self.__minRadius, max_radius=self.__maxRadius)
 
 

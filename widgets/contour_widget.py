@@ -41,8 +41,8 @@ class ContourWidget(BaseWidget):
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
 
-        self.__areaSizeMin = 10
-        self.AddSliderToGUI(name="Area size minimum", minVal=self.__areaSizeMin, maxVal=2000, valueChangedCallback=self.onAreaSizeMinValueChanged)
+        self.__areaSizeMin = 300
+        self.AddSliderToGUI(name="Area size minimum", minVal=self.__areaSizeMin, defaultVal=self.__areaSizeMin, maxVal=2000, valueChangedCallback=self.onAreaSizeMinValueChanged)
     
     def onAreaSizeMinValueChanged(self, value: int) -> None:
         """
