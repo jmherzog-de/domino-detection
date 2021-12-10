@@ -16,7 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from .basewidget import BaseWidget, cv2, np
-
+import os
 
 class AdaptiveThresholdWidget(BaseWidget):
     """
@@ -42,10 +42,10 @@ class AdaptiveThresholdWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-        self.__blockSize    = 21
-        self.__blockSizeMax = 500
-        self.__C            = 10
-        self.__CMax         = 100
+        self.__blockSize    = int(os.environ.get('ADAPT_THRESH_BLOCK_SIZE'))
+        self.__blockSizeMax = int(os.environ.get('ADAPT_THRESH_BLOCK_SIZE_MAX'))
+        self.__C            = int(os.environ.get('ADAPT_THRESH_C'))
+        self.__CMax         = int(os.environ.get('ADAPT_THRESH_CMAX'))
         self.AddSliderToGUI(name="Block Size", minVal=1, maxVal=self.__blockSizeMax, defaultVal=self.__blockSize, valueChangedCallback=self.blockSizeValueChanged)
         self.AddSliderToGUI(name="C", minVal=1, maxVal=self.__CMax, defaultVal=self.__C, valueChangedCallback=self.cValueChanged)
 

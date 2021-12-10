@@ -16,7 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from .basewidget    import BaseWidget, cv2, np
-
+import os
 
 class GaussianBlurWidget(BaseWidget):
     """
@@ -42,7 +42,7 @@ class GaussianBlurWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-        self.__kernelSize   = 7
+        self.__kernelSize   = int(os.environ.get('GAUSS_BLUR_KERNEL_SIZE'))
         self.AddSliderToGUI(name="kernel size (x,y)", defaultVal=self.__kernelSize, valueChangedCallback=self.kernelSizeValueChanged)
     
     def kernelSizeValueChanged(self, value: int) -> None:

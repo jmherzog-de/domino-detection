@@ -21,6 +21,7 @@ from PySide6.QtWidgets      import QFileDialog, QGridLayout, QGroupBox, QLabel, 
 import numpy    as np
 import widgets  as UIWidgets
 import cv2
+import os
 
 class VideoThread(QThread):
     """
@@ -46,13 +47,13 @@ class VideoThread(QThread):
         Run capturing process. This method capture a frame
         from the camera and convert it from BGR to RGB.
         This method emit a signal on every successfull frame capture.
-        """
-
-        self.cap = cv2.VideoCapture(0)
+        """    
+        self.cap = cv2.VideoCapture(os.environ.get('VIDEO_SOURCE'))
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
         self.cap.set(cv2.CAP_PROP_XI_FRAMERATE, 30)
+
         while self.status:
             ret, frame = self.cap.read()
             if not ret:

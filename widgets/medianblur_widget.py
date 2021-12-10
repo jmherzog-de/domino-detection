@@ -16,7 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from .basewidget    import BaseWidget, cv2, np
-
+import os
 class MedianBlurWidget(BaseWidget):
 
     def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", parameterChangedCallback=None) -> None:
@@ -38,7 +38,7 @@ class MedianBlurWidget(BaseWidget):
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
 
-        self.__kernelSize = 7
+        self.__kernelSize = int(os.environ.get('MEDIAN_BLUR_KERNEL_SIZE'))
         self.AddSliderToGUI(name="kernel size (x,y)", minVal=1, maxVal=17, defaultVal=self.__kernelSize, valueChangedCallback=self.kernelSizeValueChanged)
     
     def kernelSizeValueChanged(self, value: int) -> None:

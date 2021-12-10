@@ -18,7 +18,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 from domino_algorithms.roi_approx import RoiApprox
 from .basewidget import BaseWidget, cv2, np
 from domino_algorithms.divider_extraction import DividerExtraction
-
+import os
 
 class FindDividerWidget(BaseWidget):
     """
@@ -44,7 +44,7 @@ class FindDividerWidget(BaseWidget):
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
 
-        self.__areaSizeMin = 600
+        self.__areaSizeMin = int(os.environ.get('FIND_DIV_AREA_MIN'))
     
     def onAreaSizeMinValueChanged(self, value: int) -> None:
         """
@@ -76,7 +76,7 @@ class FindDividerWidget(BaseWidget):
         cvInputImage:np.ndarray = self.SelectInputImage()
         #self.OutputImage = np.zeros(self.OriginalImage.shape, dtype='uint8')
         self.OutputImage = self.OriginalImage.copy()
-        stones = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), cvOutImage=self.OutputImage)
+        stones = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(),  minArea=self.__areaSizeMin, cvOutImage=self.OutputImage)
         RoiApprox.FindROI(stones, cvOutImage=self.OutputImage)
             
                 

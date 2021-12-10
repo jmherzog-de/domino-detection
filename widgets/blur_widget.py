@@ -15,7 +15,7 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 from .basewidget    import BaseWidget, cv2, np
-
+import os
 class BlurWidget(BaseWidget):
     """
     Blur image widget. This widget implement a blur filter with OpenCV functions.
@@ -41,7 +41,7 @@ class BlurWidget(BaseWidget):
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
 
-        self.__kernelSize   = 7
+        self.__kernelSize   = int(os.environ.get('BLUR_KERNEL_SIZE'))
         self.AddSliderToGUI(name="kernel size (x,y)", minVal=1, maxVal=17, defaultVal=self.__kernelSize, valueChangedCallback=self.kernelSizeValueChanged)
 
     def kernelSizeValueChanged(self, value: int) -> None:

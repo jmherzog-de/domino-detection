@@ -16,6 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from .basewidget import BaseWidget, cv2, np
+import os
 
 class ContourWidget(BaseWidget):
     """
@@ -41,7 +42,7 @@ class ContourWidget(BaseWidget):
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
 
-        self.__areaSizeMin = 300
+        self.__areaSizeMin = int(os.environ.get('CONTOUR_AREA_MIN'))
         self.AddSliderToGUI(name="Area size minimum", minVal=self.__areaSizeMin, defaultVal=self.__areaSizeMin, maxVal=2000, valueChangedCallback=self.onAreaSizeMinValueChanged)
     
     def onAreaSizeMinValueChanged(self, value: int) -> None:

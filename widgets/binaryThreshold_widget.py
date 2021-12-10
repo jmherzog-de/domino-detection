@@ -16,7 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from .basewidget import BaseWidget, cv2, np
-
+import os
 
 class BinaryThresholdWidget(BaseWidget):
     """
@@ -42,8 +42,8 @@ class BinaryThresholdWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-        self.__thresh       = 50
-        self.__thresh_max   = 255
+        self.__thresh       = int(os.environ.get('BIN_THRESH'))
+        self.__thresh_max   = int(os.environ.get('BIN_THRESH_MAX'))
         self.AddSliderToGUI(name="Threshold", minVal=1, maxVal=255, defaultVal=self.__thresh, valueChangedCallback=self.thresholdValueChanged)
 
     def thresholdValueChanged(self, value: int) -> None:

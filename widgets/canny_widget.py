@@ -16,7 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from .basewidget    import BaseWidget, cv2, np
-
+import os
 
 class CannyWidget(BaseWidget):
     """
@@ -42,8 +42,8 @@ class CannyWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-        self.__threshold1   = 90
-        self.__threshold2   = 120
+        self.__threshold1   = int(os.environ.get('CANNY_THRESH_1'))
+        self.__threshold2   = int(os.environ.get('CANNY_THRESH_2'))
         self.AddSliderToGUI(name="threshold 1", defaultVal=self.__threshold1, valueChangedCallback=self.threshold1ValueChanged)
         self.AddSliderToGUI(name="threshold 2", defaultVal=self.__threshold2, valueChangedCallback=self.threshold2ValueChanged)
     

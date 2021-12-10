@@ -18,9 +18,15 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import sys
 from PySide6.QtWidgets  import QApplication
 from mainwindow         import MainWindow
+from os.path            import join, dirname
+from dotenv             import load_dotenv
 
 if __name__ == '__main__':
     
+    # load environment file
+    dotenv_path = join(dirname(__file__), '.env')
+    load_dotenv(dotenv_path)
+
     app = QApplication()
     w = MainWindow()
     w.show()

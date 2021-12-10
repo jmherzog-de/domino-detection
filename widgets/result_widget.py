@@ -19,7 +19,7 @@ from .basewidget import BaseWidget, cv2, np
 from domino_algorithms.divider_extraction import DividerExtraction
 from domino_algorithms.eye_detection    import DominoEyeDetection
 from domino_algorithms.roi_approx import RoiApprox
-
+import os
 
 class ResultWidget(BaseWidget):
     """
@@ -45,16 +45,17 @@ class ResultWidget(BaseWidget):
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
 
-        self.__minRadius    = 5
-        self.__maxRadius    = 12
-        self.__param1       = 3
-        self.__param2       = 10
-        self.__minDist      = 19
-        self.__param1Max    = 100
-        self.__param2Max    = 100
-        self.__minRadiusMax = 200
-        self.__maxRadiusMax = 200
-        self.__minDistMax   = 50
+        self.__minRadius    = int(os.environ.get('CIRCLE_DETECT_MIN_RADIUS'))
+        self.__maxRadius    = int(os.environ.get('CIRCLE_DETECT_MAX_RADIUS'))
+        self.__param1       = int(os.environ.get('CIRCLE_DETECT_PARAM_1'))
+        self.__param2       = int(os.environ.get('CIRCLE_DETECT_PARAM_2'))
+        self.__minDist      = int(os.environ.get('CIRCLE_DETECT_MIN_DIST'))
+        self.__param1Max    = int(os.environ.get('CIRCLE_DETECT_PARAM_1_MAX'))
+        self.__param2Max    = int(os.environ.get('CIRCLE_DETECT_PARAM_2_MAX'))
+        self.__minRadiusMax = int(os.environ.get('CIRCLE_DETECT_MIN_RADIUS_MAX'))
+        self.__maxRadiusMax = int(os.environ.get('CIRCLE_DETECT_MAX_RADIUS_MAX'))
+        self.__minDistMax   = int(os.environ.get('CIRCLE_DETECT_MIN_DIST_MAX'))
+        self.__minArea      = int(os.environ.get('FIND_DIV_AREA_MIN'))
         self.AddSliderToGUI(name="Min Radius", minVal=1, maxVal=self.__minRadiusMax, defaultVal=self.__minRadius, valueChangedCallback=self.minRadiusValueChanged)
         self.AddSliderToGUI(name="Max Radius", minVal=1, maxVal=self.__maxRadiusMax, defaultVal=self.__maxRadius, valueChangedCallback=self.maxRadiusValueChanged)
         self.AddSliderToGUI(name="Param 1", minVal=1, maxVal=self.__param1Max, defaultVal=self.__param1, valueChangedCallback=self.param1ValueChanged)
@@ -139,10 +140,10 @@ class ResultWidget(BaseWidget):
         
         cvInputImage:np.ndarray = self.SelectInputImage()
         self.OutputImage = self.OriginalImage.copy()
-        stones = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), cvOutImage=self.OutputImage)
+        stones = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), minArea=self.__minArea, cvOutImage=self.OutputImage)
         RoiApprox.FindROI(stones, cvOutImage=self.OutputImage)
         domino_eyes = DominoEyeDetection.ExtractEyes(cvImage=cvInputImage, cvOutImage=self.OutputImage, min_dist=self.__minDist, param_1=self.__param1, param_2=self.__param2, min_radius=self.__minRadius, max_radius=self.__maxRadius)
-
+        DominoEyeDetection.EyeCounting(stones, domino_eyes)
 
         super().Action()
         return

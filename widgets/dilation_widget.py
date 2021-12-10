@@ -16,7 +16,7 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
 from .basewidget import BaseWidget, cv2, np
-
+import os
 
 class DilationWidget(BaseWidget):
 
@@ -38,8 +38,8 @@ class DilationWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-        self.__kernelVal    = 5
-        self.__iterCount    = 1
+        self.__kernelVal    = int(os.environ.get('DILATE_KERNEL_VALUE'))
+        self.__iterCount    = int(os.environ.get('DILATE_ITER_COUNT'))
         self.AddSliderToGUI(name="kernel [x,y]", defaultVal=self.__kernelVal, minVal=1, maxVal=17, valueChangedCallback=self.kernelSliderValueChanged)
         self.AddSliderToGUI(name="Iterations", defaultVal=self.__iterCount, minVal=1, maxVal=5, valueChangedCallback=self.iterCountSliderValueChanged)
         return
