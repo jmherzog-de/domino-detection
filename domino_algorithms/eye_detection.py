@@ -18,6 +18,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 import cv2
 import numpy as np
 
+from domino_algorithms.domino_stone import Point
+
 class DominoEyeDetection:
 
     @staticmethod
@@ -39,7 +41,30 @@ class DominoEyeDetection:
         return circles
     
     @staticmethod
-    def EyeCounting(eyes: list, line_start: tuple, line_end: tuple):
+    def EyesOnLine(eyes: list, line_start: Point, line_end: Point):
+        eyes_on_line = []
+        b = Point(0.0, 0.0)
+        a = Point(line_start.X, line_start.Y)
+        b.X = line_end.X - line_start.X
+        b.Y = line_end.Y - line_start.Y
+        b_val = np.sqrt(b.X * b.X + b.Y * b.Y)
+
+        # d = |(p-a) x b| / |b|
+        # crossproduct = pX * aY - pY * aX
+
+        for eye in eyes:
+            d = np.abs(((a.X - eye['X']) * b.Y) - ((a.Y - eye['Y']) * b.X)) / b_val
+            print(d)
+            if d <= eye['Radius']:
+                eyes_on_line.append(eye)
         
-        crossproduct = (eyes[1] - line_start[1]) * (line_end[0] - line_start[0]) - (eyes[0] - line_start[0]) * (line_end[1] - line_start[1])
-        print(crossproduct)
+        return eyes_on_line
+
+    @staticmethod
+    def EyeCounting(stones: list, eyes: list):
+        
+        for stone in stones:
+            stone.Eyes = DominoEyeDetection.EyesOnLine(eyes, stone.ROI_Left.Line2[0], stone.ROI_Left.Line2[1])
+            print(stone.Eyes)
+        
+        return

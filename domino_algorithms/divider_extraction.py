@@ -24,7 +24,7 @@ from domino_algorithms.domino_stone import DominoStone
 class DividerExtraction:
 
     @staticmethod
-    def ExtractDividers(cvImage: np.ndarray, cvOutImage: np.ndarray):
+    def ExtractDividers(cvImage: np.ndarray, minArea: int, cvOutImage: np.ndarray):
         
         
         domino_stones = list()
@@ -35,7 +35,7 @@ class DividerExtraction:
         contours,_ = cv2.findContours(cvImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)   
         for cnt in contours:
             area = cv2.contourArea(cnt)
-            if area < 600:
+            if area < minArea:
                 continue
 
             eps = 0.05 * cv2.arcLength(cnt, True)
