@@ -26,7 +26,7 @@ class CircleDetectionWidget(BaseWidget):
     The user has the ability to change the radius.
     """
 
-    def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", parameterChangedCallback=None) -> None:
+    def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", eyes: list = [], parameterChangedCallback=None) -> None:
         """
         Constructor method.
 
@@ -44,6 +44,7 @@ class CircleDetectionWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
+        self.__eyes         = eyes
         self.__minRadius    = int(os.environ.get('CIRCLE_DETECT_MIN_RADIUS'))
         self.__maxRadius    = int(os.environ.get('CIRCLE_DETECT_MAX_RADIUS'))
         self.__param1       = int(os.environ.get('CIRCLE_DETECT_PARAM_1'))
@@ -138,7 +139,6 @@ class CircleDetectionWidget(BaseWidget):
         
         cvInputImage:np.ndarray = self.SelectInputImage()
         self.OutputImage = self.OriginalImage.copy()
-        domino_eyes = DominoEyeDetection.ExtractEyes(cvImage=cvInputImage, cvOutImage=self.OutputImage, min_dist=self.__minDist, param_1=self.__param1, param_2=self.__param2, min_radius=self.__minRadius, max_radius=self.__maxRadius)
-        
+        DominoEyeDetection.ExtractEyes(cvImage=cvInputImage, cvOutImage=self.OutputImage, min_dist=self.__minDist, param_1=self.__param1, param_2=self.__param2, min_radius=self.__minRadius, max_radius=self.__maxRadius, eyes_list=self.__eyes)
         super().Action()
         return

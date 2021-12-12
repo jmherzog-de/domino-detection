@@ -15,17 +15,16 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from domino_algorithms.roi_approx import RoiApprox
 from .basewidget import BaseWidget, cv2, np
-from domino_algorithms.divider_extraction import DividerExtraction
-import os
+from domino_algorithms.stone_projection import StoneProjection
 
-class FindDividerWidget(BaseWidget):
+
+class ProjectionWidget(BaseWidget):
     """
-    Widget to extract the divider rectangle from the domino stones.
+    The processing result widget. This widget sum up all processing steps and results the final image.
     """
 
-    def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", dominos: list = [], parameterChangedCallback=None) -> None:
+    def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", stones: list = [], eyes: list = [], parameterChangedCallback=None) -> None:
         """
         Constructor method.
 
@@ -43,44 +42,29 @@ class FindDividerWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-
-        self.__areaSizeMin = int(os.environ.get('FIND_DIV_AREA_MIN'))
-        self.__dominos  = dominos
-    
-    def onAreaSizeMinValueChanged(self, value: int) -> None:
-        """
-        Value changed event, triggered when the value of the slider 'Area size minimum' changed
-
-        :param value: Current slider value.
-        :type value: int
-        """
-        self.__areaSizeMin = value
-        self.Action()
-        self.ValueChangedCallbackWrapper(value)
+        self.__stones       = stones
+        self.__eyes         = eyes
     
     def ComboBoxInputImageChanged(self, index: int) -> None:
         """
         Triggered when the selected index changed of the input combobox.
 
-        :param index: [description]
-        :type index: [type]
+        :param index: selected item index
+        :type index: int
         """
         super().ComboBoxInputImageChanged(index)
         self.Action()
         return
     
-    def Action(self) -> None:
+    def Action(self):
         """
-        Apply contour finding algorithm on input image.
+        Apply filter on input image.
         """
-
+        
         cvInputImage:np.ndarray = self.SelectInputImage()
-        #self.OutputImage = np.zeros(self.OriginalImage.shape, dtype='uint8')
-        self.OutputImage = self.OriginalImage.copy()
-        DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(),  minArea=self.__areaSizeMin, cvOutImage=self.OutputImage, dominos_list=self.__dominos)
-        #print(self.__dominos)
-        RoiApprox.FindROI(self.__dominos, cvOutImage=self.OutputImage)
+        #self.OutputImage = cvInputImage.copy()
+        self.OutputImage = np.zeros(cvInputImage.shape, "uint8")
+        StoneProjection.DrawStone(self.OutputImage, self.__stones)
+        
         super().Action()
-
         return
-    

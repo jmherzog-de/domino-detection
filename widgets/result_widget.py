@@ -26,7 +26,7 @@ class ResultWidget(BaseWidget):
     The processing result widget. This widget sum up all processing steps and results the final image.
     """
 
-    def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", parameterChangedCallback=None) -> None:
+    def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", stones: list = [], eyes: list = [], parameterChangedCallback=None) -> None:
         """
         Constructor method.
 
@@ -44,83 +44,8 @@ class ResultWidget(BaseWidget):
         :type parameterChangedCallback: [type], optional
         """
         super().__init__(availableFilterWidgets, widgetName, cvOriginalImage, videoMode=videoMode, defaultFilterWidget=defaultFilterWidget, parameterChangedCallback=parameterChangedCallback)
-
-        self.__minRadius    = int(os.environ.get('CIRCLE_DETECT_MIN_RADIUS'))
-        self.__maxRadius    = int(os.environ.get('CIRCLE_DETECT_MAX_RADIUS'))
-        self.__param1       = int(os.environ.get('CIRCLE_DETECT_PARAM_1'))
-        self.__param2       = int(os.environ.get('CIRCLE_DETECT_PARAM_2'))
-        self.__minDist      = int(os.environ.get('CIRCLE_DETECT_MIN_DIST'))
-        self.__param1Max    = int(os.environ.get('CIRCLE_DETECT_PARAM_1_MAX'))
-        self.__param2Max    = int(os.environ.get('CIRCLE_DETECT_PARAM_2_MAX'))
-        self.__minRadiusMax = int(os.environ.get('CIRCLE_DETECT_MIN_RADIUS_MAX'))
-        self.__maxRadiusMax = int(os.environ.get('CIRCLE_DETECT_MAX_RADIUS_MAX'))
-        self.__minDistMax   = int(os.environ.get('CIRCLE_DETECT_MIN_DIST_MAX'))
-        self.__minArea      = int(os.environ.get('FIND_DIV_AREA_MIN'))
-        self.AddSliderToGUI(name="Min Radius", minVal=1, maxVal=self.__minRadiusMax, defaultVal=self.__minRadius, valueChangedCallback=self.minRadiusValueChanged)
-        self.AddSliderToGUI(name="Max Radius", minVal=1, maxVal=self.__maxRadiusMax, defaultVal=self.__maxRadius, valueChangedCallback=self.maxRadiusValueChanged)
-        self.AddSliderToGUI(name="Param 1", minVal=1, maxVal=self.__param1Max, defaultVal=self.__param1, valueChangedCallback=self.param1ValueChanged)
-        self.AddSliderToGUI(name="Param 2", minVal=1, maxVal=self.__param2Max, defaultVal=self.__param2, valueChangedCallback=self.param2ValueChanged)
-        self.AddSliderToGUI(name="Min Distance", minVal=1, maxVal=self.__minDistMax, defaultVal=self.__minDist, valueChangedCallback=self.minDistValueChanged)
-    
-    def minDistValueChanged(self, value: int) -> None:
-        """
-        Value changed event, triggered when the value of the slider has changed.
-
-        :param value: [description]
-        :type value: int
-        """
-
-        self.__minDist = value
-        self.Action()
-        self.ValueChangedCallbackWrapper(value)
-
-    def minRadiusValueChanged(self, value: int) -> None:
-        """
-        Value changed event, triggered when the value of the slider has changed.
-
-        :param value: Current slider value.
-        :type value: int
-        """
-
-        self.__minRadius = value
-        self.Action()
-        self.ValueChangedCallbackWrapper(value)
-    
-    def maxRadiusValueChanged(self, value: int) -> None:
-        """
-        Value changed event, triggered when the value of the slider has changed.
-
-        :param value: [description]
-        :type value: int
-        """
-        
-        self.__maxRadius = value
-        self.Action()
-        self.ValueChangedCallbackWrapper(value)
-    
-    def param1ValueChanged(self, value: int) -> None:
-        """
-        Value changed event, triggered when the value of the slider has changed.
-
-        :param value: [description]
-        :type value: int
-        """
-
-        self.__param1 = value
-        self.Action()
-        self.ValueChangedCallbackWrapper(value)
-    
-    def param2ValueChanged(self, value: int) -> None:
-        """
-        Value changed event, triggered when the value of the slider has changed.
-
-        :param value: [description]
-        :type value: int
-        """
-
-        self.__param2 = value
-        self.Action()
-        self.ValueChangedCallbackWrapper(value)
+        self.__stones       = stones
+        self.__eyes         = eyes
     
     def ComboBoxInputImageChanged(self, index: int) -> None:
         """
@@ -140,10 +65,16 @@ class ResultWidget(BaseWidget):
         
         cvInputImage:np.ndarray = self.SelectInputImage()
         self.OutputImage = self.OriginalImage.copy()
-        stones = DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(), minArea=self.__minArea, cvOutImage=self.OutputImage)
-        RoiApprox.FindROI(stones, cvOutImage=self.OutputImage)
-        domino_eyes = DominoEyeDetection.ExtractEyes(cvImage=cvInputImage, cvOutImage=self.OutputImage, min_dist=self.__minDist, param_1=self.__param1, param_2=self.__param2, min_radius=self.__minRadius, max_radius=self.__maxRadius)
-        DominoEyeDetection.EyeCounting(stones, domino_eyes)
+        DominoEyeDetection.EyeCounting(self.__stones, self.__eyes)
+
+        for stone in self.__stones:
+            cv2.putText(self.OutputImage, str(stone.EyeVal_Left), org=(stone.ROI_Left.Line1[1].X+20, stone.ROI_Left.Line1[1].Y+20), fontScale=1, color=(255, 0, 0), fontFace=cv2.FONT_HERSHEY_SIMPLEX, thickness=3)
+            for eye in stone.Eyes_Left:
+                cv2.circle(self.OutputImage, center=(eye['X'], eye['Y']), radius=eye['Radius'], color=(0,255,0), thickness=3)
+            
+            cv2.putText(self.OutputImage, str(stone.EyeVal_Right), org=(stone.ROI_Right.Line1[1].X+20, stone.ROI_Right.Line1[1].Y+20), fontScale=1, color=(255, 0, 0), fontFace=cv2.FONT_HERSHEY_SIMPLEX, thickness=3)
+            #for eye in stone.Eyes_Right:
+            #    cv2.circle(self.OutputImage, center=(eye['X'], eye['Y']), radius=eye['Radius'], color=(0,255,0), thickness=3)
 
         super().Action()
         return

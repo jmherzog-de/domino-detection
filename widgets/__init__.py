@@ -12,3 +12,4 @@ from .adaptiveThreshold_widget  import AdaptiveThresholdWidget
 from .circleDetection_widget    import CircleDetectionWidget
 from .autoscale_widget          import AutoscaleWidget
 from .result_widget             import ResultWidget
+from .projection_widget         import ProjectionWidget

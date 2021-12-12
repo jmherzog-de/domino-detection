@@ -48,7 +48,7 @@ class VideoThread(QThread):
         from the camera and convert it from BGR to RGB.
         This method emit a signal on every successfull frame capture.
         """    
-        self.cap = cv2.VideoCapture(os.environ.get('VIDEO_SOURCE'))
+        self.cap = cv2.VideoCapture(int(os.environ.get('VIDEO_SOURCE')))
         self.cap.set(cv2.CAP_PROP_BUFFERSIZE, 2)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 320)
@@ -80,6 +80,8 @@ class MainWindow(QMainWindow):
         self.__qtOriginalImage  = None
         self.__videoMode        = False
         self.__availableFilters = list()
+        self.__dominos          = list()
+        self.__eyes             = list()
 
         self.setupUi()
     
@@ -301,14 +303,17 @@ class MainWindow(QMainWindow):
         contour_filter      = UIWidgets.ContourWidget(videoMode= self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CONTOUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(contour_filter)
         
-        finddivider_filter  = UIWidgets.FindDividerWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="FIND DIVIDER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        finddivider_filter  = UIWidgets.FindDividerWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="FIND DIVIDER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="DILATION FILTER", dominos=self.__dominos, parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(finddivider_filter)
 
-        circledetect_filter = UIWidgets.CircleDetectionWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CIRCLE DETECTION", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        circledetect_filter = UIWidgets.CircleDetectionWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CIRCLE DETECTION", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", eyes=self.__eyes, parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(circledetect_filter)
 
-        result_filter       = UIWidgets.ResultWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="RESULT", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", parameterChangedCallback=self.parameterChangedCallback)
+        result_filter       = UIWidgets.ResultWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="RESULT", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="ERODE FILTER", stones=self.__dominos, eyes=self.__eyes, parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(result_filter)
+
+        projection_filter   = UIWidgets.ProjectionWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="PROJECTION WIDGET", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="Original Image", stones=self.__dominos, parameterChangedCallback=self.parameterChangedCallback)
+        self.__availableFilters.append(projection_filter)
 
         for widget in self.__availableFilters:
             self.filterListBox.addItem(widget.WidgetName)
