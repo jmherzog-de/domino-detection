@@ -1,7 +1,6 @@
 from .grayscale_widget          import GrayscaleWidget
 from .blur_widget               import BlurWidget
 from .gaussianblur_widget       import GaussianBlurWidget
-from .medianblur_widget         import MedianBlurWidget
 from .canny_widget              import CannyWidget
 from .binaryThreshold_widget    import BinaryThresholdWidget
 from .contour_widget            import ContourWidget
@@ -10,6 +9,5 @@ from .findDivider_widget        import FindDividerWidget
 from .erode_widget              import ErodeWidget
 from .adaptiveThreshold_widget  import AdaptiveThresholdWidget
 from .circleDetection_widget    import CircleDetectionWidget
-from .autoscale_widget          import AutoscaleWidget
 from .result_widget             import ResultWidget
 from .projection_widget         import ProjectionWidget

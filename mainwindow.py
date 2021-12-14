@@ -272,17 +272,11 @@ class MainWindow(QMainWindow):
         grayscale_filter    = UIWidgets.GrayscaleWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="GRAYSCALE FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="Original Image", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(grayscale_filter)
 
-        #autoscale_filter    = UIWidgets.AutoscaleWidget(videoMode=self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="AUTOSCALE", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
-        #self.__availableFilters.append(autoscale_filter)
-
         blur_filter         = UIWidgets.BlurWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="BLUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
         self.__availableFilters.append(blur_filter)
         
         #gauss_filter        = UIWidgets.GaussianBlurWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="GAUSSIAN BLUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
         #self.__availableFilters.append(gauss_filter)
-
-        #medianblur_filter   = UIWidgets.MedianBlurWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="MEDIAN BLUR FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="GRAYSCALE FILTER", parameterChangedCallback=self.parameterChangedCallback)
-        #self.__availableFilters.append(medianblur_filter)
 
         #canny_filter        = UIWidgets.CannyWidget(videoMode = self.__videoMode, availableFilterWidgets=self.__availableFilters, widgetName="CANNY FILTER", cvOriginalImage=self.__cvOriginalImage, defaultFilterWidget="BLUR FILTER", parameterChangedCallback=self.parameterChangedCallback)
         #self.__availableFilters.append(canny_filter)

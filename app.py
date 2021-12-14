@@ -22,9 +22,12 @@ from os.path            import join, dirname
 from dotenv             import load_dotenv
 
 if __name__ == '__main__':
+
+    # set user defined environment file or set default
+    env_file = '.env' if len(sys.argv) < 2 else sys.argv[1]
     
     # load environment file
-    dotenv_path = join(dirname(__file__), '.env')
+    dotenv_path = join(dirname(__file__), env_file)
     load_dotenv(dotenv_path)
 
     app = QApplication()

@@ -22,7 +22,9 @@ import os
 
 class FindDividerWidget(BaseWidget):
     """
-    Widget to extract the divider rectangle from the domino stones.
+    Widget to find all domino-stone dividers.
+    This widget fill up the dominos list with all detected stones and approximate
+    the ROI lines for all detection lines.
     """
 
     def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", dominos: list = [], parameterChangedCallback=None) -> None:
@@ -71,16 +73,18 @@ class FindDividerWidget(BaseWidget):
     
     def Action(self) -> None:
         """
-        Apply contour finding algorithm on input image.
+        Apply divider extraction algorithm.
         """
 
         cvInputImage:np.ndarray = self.SelectInputImage()
-        #self.OutputImage = np.zeros(self.OriginalImage.shape, dtype='uint8')
-        self.OutputImage = self.OriginalImage.copy()
-        DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(),  minArea=self.__areaSizeMin, cvOutImage=self.OutputImage, dominos_list=self.__dominos)
-        #print(self.__dominos)
-        RoiApprox.FindROI(self.__dominos, cvOutImage=self.OutputImage)
-        super().Action()
+        self.OutputImage        = self.OriginalImage.copy()
 
+        # Get dividers from input image.
+        DividerExtraction.ExtractDividers(cvImage=cvInputImage.copy(),  minArea=self.__areaSizeMin, cvOutImage=self.OutputImage, dominos_list=self.__dominos)
+
+        # Approximation of the Region of Interest lines of the found dividers.
+        RoiApprox.FindROI(self.__dominos, cvOutImage=self.OutputImage)
+        
+        super().Action()
         return
     

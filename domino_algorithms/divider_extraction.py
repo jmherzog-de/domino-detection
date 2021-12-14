@@ -25,23 +25,28 @@ class DividerExtraction:
 
     @staticmethod
     def ExtractDividers(cvImage: np.ndarray, minArea: int, cvOutImage: np.ndarray, dominos_list: list):
-        
-        
-        domino_stones = list()
-        dominos_list.clear()
+        """
+        Find the dividers of the domino-stones in the cvImage picture.
 
-        #
+        :param cvImage: OpenCV input image.
+        :type cvImage: np.ndarray
+        :param minArea: minimum area size for the divider.
+        :type minArea: int
+        :param cvOutImage: OpenCV output image.
+        :type cvOutImage: np.ndarray
+        :param dominos_list: All DominoStone objects.
+        :type dominos_list: list
+        """
+
+        dominos_list.clear()    # clear global domino-stones list.
+
         # Find Contours
-        #    
         contours,_ = cv2.findContours(cvImage, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)   
         for cnt in contours:
             area = cv2.contourArea(cnt)
             if area < minArea:
                 continue
 
-            eps = 0.05 * cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(curve=cnt, epsilon=eps, closed=True)
-            
             # get rotated rectangle from contour
             rot_rect = cv2.minAreaRect(cnt)
             box = cv2.boxPoints(rot_rect)
@@ -84,5 +89,4 @@ class DividerExtraction:
             cv2.line(cvOutImage, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
             cv2.line(cvOutImage, pt1=(x1, y1), pt2=(x2, y2), color=(0, 0, 255), thickness=2)
           
-
-        return domino_stones.copy()
+        return

@@ -15,15 +15,13 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from .basewidget import BaseWidget, cv2, np
-from domino_algorithms.divider_extraction import DividerExtraction
-from domino_algorithms.eye_detection    import DominoEyeDetection
-from domino_algorithms.roi_approx import RoiApprox
-import os
+from .basewidget        import BaseWidget, cv2, np
+from domino_algorithms import DominoEyeDetection
+
 
 class ResultWidget(BaseWidget):
     """
-    The processing result widget. This widget sum up all processing steps and results the final image.
+    Final processing widget. This widget combine the detected circles with the detected domino stones.
     """
 
     def __init__(self, availableFilterWidgets: list, widgetName: str, cvOriginalImage: np.ndarray, videoMode: bool = False, defaultFilterWidget: str = "Original Image", stones: list = [], eyes: list = [], parameterChangedCallback=None) -> None:
@@ -36,10 +34,14 @@ class ResultWidget(BaseWidget):
         :type widgetName: str
         :param cvOriginalImage: Original image read from OpenCV method.
         :type cvOriginalImage: np.ndarray
-        :param videoMode: [description], defaults to False
+        :param videoMode: Enabled video mode True := active False := disabled, defaults to False
         :type videoMode: bool, optional
         :param defaultFilterWidget: Default input image to apply filter, defaults to "Original Image"
         :type defaultFilterWidget: str, optional
+        :param stones: List with all detected stones as DominoStone objects, defaults to []
+        :type stones: list, optional
+        :param eyes: List of dicts with all detected eyes, defaults to []
+        :type eyes: list, optional
         :param parameterChangedCallback: Callback function for widget slider value changed, defaults to None
         :type parameterChangedCallback: [type], optional
         """
@@ -60,10 +62,10 @@ class ResultWidget(BaseWidget):
     
     def Action(self):
         """
-        Apply filter on input image.
+        Count eyes on domino stone detection line.
+        Draw the circles on screen and value for each side.
         """
         
-        cvInputImage:np.ndarray = self.SelectInputImage()
         self.OutputImage = self.OriginalImage.copy()
         DominoEyeDetection.EyeCounting(self.__stones, self.__eyes)
 
@@ -73,8 +75,6 @@ class ResultWidget(BaseWidget):
                 cv2.circle(self.OutputImage, center=(eye['X'], eye['Y']), radius=eye['Radius'], color=(0,255,0), thickness=3)
             
             cv2.putText(self.OutputImage, str(stone.EyeVal_Right), org=(stone.ROI_Right.Line1[1].X+20, stone.ROI_Right.Line1[1].Y+20), fontScale=1, color=(255, 0, 0), fontFace=cv2.FONT_HERSHEY_SIMPLEX, thickness=3)
-            #for eye in stone.Eyes_Right:
-            #    cv2.circle(self.OutputImage, center=(eye['X'], eye['Y']), radius=eye['Radius'], color=(0,255,0), thickness=3)
 
         super().Action()
         return

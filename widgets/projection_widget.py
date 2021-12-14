@@ -15,9 +15,8 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from .basewidget import BaseWidget, cv2, np
-from domino_algorithms.stone_projection import StoneProjection
-
+from .basewidget        import BaseWidget, np
+from domino_algorithms  import StoneProjection
 
 class ProjectionWidget(BaseWidget):
     """
@@ -62,9 +61,7 @@ class ProjectionWidget(BaseWidget):
         """
         
         cvInputImage:np.ndarray = self.SelectInputImage()
-        #self.OutputImage = cvInputImage.copy()
-        self.OutputImage = np.zeros(cvInputImage.shape, "uint8")
+        self.OutputImage        = np.zeros(cvInputImage.shape, "uint8")
         StoneProjection.DrawStone(self.OutputImage, self.__stones)
-        
         super().Action()
         return

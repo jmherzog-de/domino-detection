@@ -25,6 +25,26 @@ class DominoEyeDetection:
 
     @staticmethod
     def ExtractEyes(cvImage: np.ndarray, cvOutImage: np.ndarray, min_dist: int, param_1: int, param_2: int, min_radius: int, max_radius: int, eyes_list: list):
+        """
+        Detect circles in the given input image and add them into the eyes_list.
+
+        :param cvImage: OpenCV input image.
+        :type cvImage: np.ndarray
+        :param cvOutImage: OpenCV Output image with all found circles.
+        :type cvOutImage: np.ndarray
+        :param min_dist: Minimum distance between circles
+        :type min_dist: int
+        :param param_1: [description]
+        :type param_1: int
+        :param param_2: [description]
+        :type param_2: int
+        :param min_radius: Minimum radius of circles to detect.
+        :type min_radius: int
+        :param max_radius: Maximum radius of circles to detect.
+        :type max_radius: int
+        :param eyes_list: List to write all found circles {X, Y, Radius}
+        :type eyes_list: list
+        """
 
         eyes_list.clear()
 
@@ -43,6 +63,19 @@ class DominoEyeDetection:
     
     @staticmethod
     def EyesOnLine(eyes: list, line_start: Point, line_end: Point):
+        """
+        Check if a eye in eyes list is on a detection row of a domino stones.
+
+        :param eyes: [description]
+        :type eyes: list
+        :param line_start: [description]
+        :type line_start: Point
+        :param line_end: [description]
+        :type line_end: Point
+        :return: [description]
+        :rtype: [type]
+        """
+
         eyes_on_line = []
         b = Point(x=line_end.X - line_start.X, y=line_end.Y - line_start.Y)
         a = Point(line_start.X, line_start.Y)
@@ -76,6 +109,19 @@ class DominoEyeDetection:
     
     @staticmethod
     def EyeDef(line1: list, line2: list, line3: list):
+        """
+        Define value of domino stone side by checking number of eyes
+        on each detection line.
+
+        :param line1: Detection line 1
+        :type line1: list
+        :param line2: Detection line 2 (center)
+        :type line2: list
+        :param line3: Detection line 3
+        :type line3: list
+        :return: Numerical eye value. Return None if no valid value found.
+        :rtype: int | None
+        """
 
         n_line1 = len(line1)
         n_line2 = len(line2)
@@ -98,6 +144,14 @@ class DominoEyeDetection:
 
     @staticmethod
     def EyeCounting(stones: list, eyes: list):
+        """
+        Get Value of right and left side of all domino-stones.
+
+        :param stones: List of all DominoStone objects.
+        :type stones: list
+        :param eyes: lList of all detected circles.
+        :type eyes: list
+        """
         
         for stone in stones:
             stone.Eyes_Left.clear()

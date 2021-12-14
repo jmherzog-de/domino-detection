@@ -79,7 +79,7 @@ class ErodeWidget(BaseWidget):
     
     def Action(self) -> None:
         """
-        Apply dilation method on input image.
+        Apply erode method on input image.
         """
 
         cvInputImage:np.ndarray = self.SelectInputImage()
