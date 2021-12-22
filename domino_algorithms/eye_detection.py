@@ -15,11 +15,14 @@ You should have received a copy of the GNU General Public License
 along with this program. If not, see <http://www.gnu.org/licenses/>.
 '''
 
-from math import e
+from math import dist, e, fabs
 import cv2
 import numpy as np
 
 from domino_algorithms.domino_stone import Point
+
+def distance(x1: np.int32, x2: np.int32, y1: np.int32, y2: np.int32):
+    return np.sqrt( (x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) )
 
 class DominoEyeDetection:
 
@@ -170,7 +173,87 @@ class DominoEyeDetection:
             stone.Eyes_Right += stones_right_line2.copy()
             stone.Eyes_Right += stones_right_line3.copy()
 
+            # Count Dominos on detection lines
             stone.EyeVal_Left   = DominoEyeDetection.EyeDef(stones_left_line1, stones_left_line2, stones_left_line3)
             stone.EyeVal_Right  = DominoEyeDetection.EyeDef(stones_right_line1, stones_right_line2, stones_right_line3)
+
+            line1_left_pos  = [False, False, False]
+            line1_right_pos = [False, False, False]
+            line2_left_pos  = [False]
+            line2_right_pos = [False]
+            line3_left_pos  = [False, False, False]
+            line3_right_pos = [False, False, False]
+
+            for eye in stones_left_line1:
+                if distance(stone.ROI_Left.Line1_Points[0].X, eye['X'], stone.ROI_Left.Line1_Points[0].Y, eye['Y']) < eye['Radius']:
+                    line1_left_pos[0] = True
+                elif distance(stone.ROI_Left.Line1_Points[1].X, eye['X'], stone.ROI_Left.Line1_Points[1].Y, eye['Y']) < eye['Radius']:
+                    line1_left_pos[1] = True
+                elif distance(stone.ROI_Left.Line1_Points[2].X, eye['X'], stone.ROI_Left.Line1_Points[2].Y, eye['Y']) < eye['Radius']:
+                    line1_left_pos[2] = True
+            
+            for eye in stones_left_line2:
+                if distance(stone.ROI_Left.Line2_Points[0].X, eye['X'], stone.ROI_Left.Line2_Points[0].Y, eye['Y']) < eye['Radius']:
+                    line2_left_pos[0] = True
+            
+            for eye in stones_left_line3:
+                if distance(stone.ROI_Left.Line3_Points[0].X, eye['X'], stone.ROI_Left.Line3_Points[0].Y, eye['Y']) < eye['Radius']:
+                    line3_left_pos[0] = True
+                elif distance(stone.ROI_Left.Line3_Points[1].X, eye['X'], stone.ROI_Left.Line3_Points[1].Y, eye['Y']) < eye['Radius']:
+                    line3_left_pos[1] = True
+                elif distance(stone.ROI_Left.Line3_Points[2].X, eye['X'], stone.ROI_Left.Line3_Points[2].Y, eye['Y']) < eye['Radius']:
+                    line3_left_pos[2] = True
+
+            for eye in stones_right_line1:
+                if distance(stone.ROI_Right.Line1_Points[0].X, eye['X'], stone.ROI_Right.Line1_Points[0].Y, eye['Y']) < eye['Radius']:
+                    line1_right_pos[0] = True
+                elif distance(stone.ROI_Right.Line1_Points[1].X, eye['X'], stone.ROI_Right.Line1_Points[1].Y, eye['Y']) < eye['Radius']:
+                    line1_right_pos[1] = True
+                elif distance(stone.ROI_Right.Line1_Points[2].X, eye['X'], stone.ROI_Right.Line1_Points[2].Y, eye['Y']) < eye['Radius']:
+                    line1_right_pos[2] = True
+            
+            for eye in stones_right_line2:
+                if distance(stone.ROI_Right.Line2_Points[0].X, eye['X'], stone.ROI_Right.Line2_Points[0].Y, eye['Y']) < eye['Radius']:
+                    line2_right_pos[0] = True
+                
+            for eye in stones_right_line3:
+                if distance(stone.ROI_Right.Line3_Points[0].X, eye['X'], stone.ROI_Right.Line3_Points[0].Y, eye['Y']) < eye['Radius']:
+                    line3_right_pos[0] = True
+                elif distance(stone.ROI_Right.Line3_Points[1].X, eye['X'], stone.ROI_Right.Line3_Points[1].Y, eye['Y']) < eye['Radius']:
+                    line3_right_pos[1] = True
+                elif distance(stone.ROI_Right.Line3_Points[2].X, eye['X'], stone.ROI_Right.Line3_Points[2].Y, eye['Y']) < eye['Radius']:
+                    line3_right_pos[2] = True
+            
+            #
+            # Posibility check on left side
+            #
+            if stone.EyeVal_Left == 1 and not (not line1_left_pos[0] and not line1_left_pos[1] and not line1_left_pos[2] and line2_left_pos[0] and not line3_left_pos[0] and not line3_left_pos[1] and not line3_left_pos[2]):
+                stone.EyeVal_Left = None
+            elif stone.EyeVal_Left  == 2 and not (not line1_left_pos[0] and not line1_left_pos[1] and line1_left_pos[2] and not line2_left_pos[0] and line3_left_pos[0] and not line3_left_pos[1] and not line3_left_pos[2]):
+                stone.EyeVal_Left = None
+            elif stone.EyeVal_Left == 3 and not (not line1_left_pos[0] and not line1_left_pos[1] and line1_left_pos[2] and line2_left_pos[0] and line3_left_pos[0] and not line3_left_pos[1] and not line3_left_pos[2]):
+                stone.EyeVal_Left = None
+            elif stone.EyeVal_Left == 4 and not (line1_left_pos[0] and not line1_left_pos[1] and line1_left_pos[2] and not line2_left_pos[0] and line3_left_pos[0] and not line3_left_pos[1] and line3_left_pos[2]):
+                stone.EyeVal_Left = None
+            elif stone.EyeVal_Left == 5 and not (line1_left_pos[0] and not line1_left_pos[1] and line1_left_pos[2] and line2_left_pos[0] and line3_left_pos[0] and not line3_left_pos[1] and line3_left_pos[2]):
+                stone.EyeVal_Left = None
+            elif stone.EyeVal_Left == 6 and not (line1_left_pos[0] and line1_left_pos[2] and line1_left_pos[2] and not line2_left_pos[0] and line3_left_pos[0] and line3_left_pos[1] and line3_left_pos[2]):
+                stone.EyeVal_Left = None
+
+            #
+            # Posibility check on right side
+            #
+            if stone.EyeVal_Right == 1 and not (not line1_right_pos[0] and not line1_right_pos[1] and not line1_right_pos[2] and line2_right_pos[0] and not line3_right_pos[0] and not line3_right_pos[1] and not line3_right_pos[2]):
+                stone.EyeVal_Right = None
+            elif stone.EyeVal_Right == 2 and not (not line1_right_pos[0] and not line1_right_pos[1] and line1_right_pos[2] and not line2_right_pos[0] and line3_right_pos[0] and not line3_right_pos[1] and not line3_right_pos[2]):
+                stone.EyeVal_Right = None
+            elif stone.EyeVal_Right == 3 and not (not line1_right_pos[0] and not line1_right_pos[1] and line1_right_pos[2] and line2_right_pos[0] and line3_right_pos[0] and not line3_right_pos[1] and not line3_right_pos[2]):
+                stone.EyeVal_Right = None
+            elif stone.EyeVal_Right == 4 and not (line1_right_pos[0] and not line1_right_pos[1] and line1_right_pos[2] and not line2_right_pos[0] and line3_right_pos[0] and not line3_right_pos[1] and line3_right_pos[2]):
+                stone.EyeVal_Right = None
+            elif stone.EyeVal_Right == 5 and not (line1_right_pos[0] and not line1_right_pos[1] and line1_right_pos[2] and line2_right_pos[0] and line3_right_pos[0] and not line3_right_pos[1] and line3_right_pos[2]):
+                stone.EyeVal_Right = None
+            elif stone.EyeVal_Right == 6 and not (line1_right_pos[0] and line1_right_pos[2] and line1_right_pos[2] and not line2_right_pos[0] and line3_right_pos[0] and line3_right_pos[1] and line3_right_pos[2]):
+                stone.EyeVal_Right = None
 
         return

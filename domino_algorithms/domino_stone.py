@@ -28,6 +28,10 @@ class ROI:
         self.Line2  = [ Point(0.0, 0.0), Point(0.0, 0.0) ]
         self.Line3  = [ Point(0.0, 0.0), Point(0.0, 0.0) ]
 
+        self.Line1_Points   = [ Point(0.0, 0.0), Point(0.0, 0.0), Point(0.0, 0.0)]
+        self.Line2_Points   = [ Point(0.0, 0.0)]
+        self.Line3_Points   = [Point(0.0, 0.0), Point(0.0, 0.0), Point(0.0, 0.0)]
+
 class DominoStone:
 
     def __init__(self, center_x: float = 0.0, center_y: float = 0.0, length: float = 0.0, width: float = 0.0, height: float = 0.0, angle_deg: float = 0.0, center_line_p1_x: float = 0.0, center_line_p1_y: float = 0.0, center_line_p2_x: float = 0.0, center_line_p2_y: float = 0.0) -> None:
