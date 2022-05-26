@@ -63,6 +63,23 @@ the preprocessing. The entry point of the application is in the app.py file. The
 Inside the .env file are the default parameters for all settings of the application. This includes both filter parameters and the default selection of the used camera index. This file is automatically read by the application at startup.
 
 # 4. Preprocessing
+With the help of preprocessing, the input image is prepared for the actual detection. Essentially, the aim is to get the input image as free from interference as possible and to generate a binary image.
+
+## 4.1 Grayscale Conversion
+The first step of preprocessing is to convert the incoming color image into a grayscale image. With the help of the OpenCV library this can be done relatively easily.
+
+<figure><img src="docs/09.png" alt="DetectionLines" width="100%">
+    <figcaption align = "center"><b>Figure 7 - Original input image</b></figcaption>
+</figure>
+
+<figure><img src="docs/10.png" alt="DetectionLines" width="100%">
+    <figcaption align = "center"><b>Figure 10 - Converted grayscale image</b></figcaption>
+</figure>
+
+## 4.2 Noise reduction with blur filter
+With the help of an unsharpness filter, the image noise of the grayscale image is eliminated as far as possible.
+
+## 4.3 Binarization
 To be continoued...
 
 # 5. Detection of the Divider
